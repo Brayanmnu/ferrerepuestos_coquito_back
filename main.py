@@ -25,11 +25,11 @@ class Producto(BaseModel):
     stock: float
     id_unidad_medida: int
 
-host = config['database']['host']
-port = config['database']['port']
-db = config['database']['db']
-usr = config['database']['usr']
-pwd = config['database']['pwd']
+host = config['database']['host_heroku']
+port = config['database']['port_heroku']
+db = config['database']['db_heroku']
+usr = config['database']['usr_heroku']
+pwd = config['database']['pwd_heroku']
 
 @app.get("/tipo-producto")
 def get_all_tipo_producto():
