@@ -3,6 +3,8 @@ from pydantic import BaseModel
 import utils
 from configparser import ConfigParser
 from fastapi.middleware.cors import CORSMiddleware
+import base64
+import qrcode
 
 
 file = "config.ini"
@@ -140,7 +142,7 @@ def get_all_products():
     dict_json = []
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
-        query = "select row_to_json(row) from (SELECT id_tipo_producto, nombre, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida  FROM producto) row"
+        query = "select row_to_json(row) from (SELECT id_producto, t.descripcion as categoria, nombre, p.descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, concat(stock,' ',um.descripcion) FROM producto p inner join tipo_productos t on p.id_tipo_producto = t.id inner join unidad_medida um on p.id_unidad_medida = um.id) row"
         cursor = conn.cursor()
         cursor.execute(query)
         print('Query ejecutado')
@@ -192,7 +194,15 @@ def insert_producto(producto: Producto):
         if cursor.rowcount > 0:
             dict_json = cursor.fetchone()
             dict_json = dict_json[0]
-        #dict_json = {"status":"insertado"}
+            url_qr = config['hosting']['url_hosting'] 
+            url_qr = str(url_qr)+ dict_json
+            print(f'url_qr: {url_qr}')
+            img = qrcode.make(url_qr)
+            print('qr generado')
+            img.save("qr_auxiliar.jpg")
+            with open("qr_auxiliar.jpg", "rb") as img_file:
+                b64_string = base64.b64encode(img_file.read())
+        dict_json = {"status":b64_string}
     except Exception as error:
         dict_json = {"status": "error"}
         print('Ocurrió un error inesperado')
