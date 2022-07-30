@@ -5,7 +5,8 @@ from configparser import ConfigParser
 from fastapi.middleware.cors import CORSMiddleware
 import base64
 import qrcode
-
+from os import remove
+from pymongo import MongoClient
 
 file = "config.ini"
 config = ConfigParser()
@@ -196,16 +197,23 @@ def insert_producto(producto: Producto):
             dict_json = dict_json[0]
             url_qr = config['hosting']['url_hosting'] 
             url_qr = str(url_qr)+ dict_json
-            print(f'url_qr: {url_qr}')
             img = qrcode.make(url_qr)
-            print('qr generado')
+            print('qr generado correctamente')
             img.save("qr_auxiliar.jpg")
             with open("qr_auxiliar.jpg", "rb") as img_file:
                 b64_string = base64.b64encode(img_file.read())
-        dict_json = {"status":b64_string}
+            remove("qr_auxiliar.jpg")
+            client_mongo = MongoClient(config['mongodb']['uri'] )
+            db_mongo = client_mongo[config['mongodb']['database']]
+            collection_qr = db_mongo[config['mongodb']['collection_qr']]
+            mydict = { "id": dict_json, "b64_string": str(b64_string) }
+            qr_result = collection_qr.insert_one(mydict)
+            print("Qr Guardado correctamente")
+            client_mongo.close()
+        dict_json = {"status":"ok"}
     except Exception as error:
         dict_json = {"status": "error"}
-        print('Ocurrió un error inesperado')
+        print('Ocurrió un error inesperado: '+error)
     finally:
         if conn:
             cursor.close()
