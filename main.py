@@ -182,12 +182,30 @@ def get_by_id_products(item_id: str):
     return dict_json
 
 
+
+@app.get("/products-qr/{item_id}")
+def get_qr_by_id_product(item_id: str):
+    try:
+        client_mongo = MongoClient(config['mongodb']['uri'] )
+        db_mongo = client_mongo[config['mongodb']['database']]
+        collection_qr = db_mongo[config['mongodb']['collection_qr']]
+        for qr_base64 in collection_qr.find({ "id": item_id}):
+            qr_base64= qr_base64['b64_string']
+            qr_base64 = str(qr_base64)
+            qr_base64 = qr_base64[2:-1]
+        dict_json = {"result": qr_base64}
+    except Exception as error:
+        print(f'Ocurrió un error inesperado: {error}')
+        dict_json = {"result": "error"}
+    return dict_json
+
+
 @app.post("/products")
 def insert_producto(producto: Producto):
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         cursor = conn.cursor()
-        select_query = "insert into producto (id_tipo_producto, nombre, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida) values (%s,%s, %s, %s, %s, %s, %s, %s) RETURNING id_producto"
+        select_query = "insert into producto (id_tipo_producto, nombre, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida,fecha_registro, fecha_actualizacion) values (%s,%s, %s, %s, %s, %s, %s, %s,current_timestamp, current_timestamp) RETURNING id_producto"
         cursor.execute(select_query,(producto.id_tipo_producto,producto.nombre,producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto. precio_venta_mayor, producto.stock, producto.id_unidad_medida))
         conn.commit()
         print('Query ejecutado')
@@ -227,7 +245,7 @@ def update_producto(item_id: str, producto: Producto):
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         cursor = conn.cursor()
-        select_query = "update producto set id_tipo_producto = (%s) , nombre = (%s), descripcion = (%s), precio_compra = (%s), precio_venta_menor = (%s), precio_venta_mayor = (%s), stock = (%s), id_unidad_medida = (%s) where id_producto = (%s)"
+        select_query = "update producto set id_tipo_producto = (%s) , nombre = (%s), descripcion = (%s), precio_compra = (%s), precio_venta_menor = (%s), precio_venta_mayor = (%s), stock = (%s), id_unidad_medida = (%s), fecha_actualizacion = (current_timestamp) where id_producto = (%s)"
         cursor.execute(select_query,(producto.id_tipo_producto,producto.nombre,producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto. precio_venta_mayor, producto.stock, producto.id_unidad_medida, item_id))
         conn.commit()
         print('Query ejecutado')
