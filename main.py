@@ -260,6 +260,28 @@ def update_producto(item_id: str, producto: Producto):
             print('conexion terminada')
     return dict_json
 
+
+@app.delete("/products/{item_id}")
+def delete_producto(item_id: str):
+    try:
+        conn = utils.conexion_postgres(host,port,db,usr,pwd)
+        cursor = conn.cursor()
+        select_query = "delete from producto where id_producto = (%s)"
+        cursor.execute(select_query,(item_id,))
+        conn.commit()
+        print('Query ejecutado')
+        dict_json = {"status":"eliminado"}
+    except Exception as error:
+        dict_json = {"status": "error"}
+        print(f'Ocurrió un error inesperado: {error}')
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+            print('conexion terminada')
+    return dict_json
+
+
 @app.get("/unidad-medida")
 def get_all_unidad_medida():
     dict_json = []
