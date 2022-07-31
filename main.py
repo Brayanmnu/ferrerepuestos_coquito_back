@@ -212,7 +212,7 @@ def insert_producto(producto: Producto):
         dict_json = {"status":"ok"}
     except Exception as error:
         dict_json = {"status": "error"}
-        print('Ocurrió un error inesperado: '+error)
+        print(f'Ocurrió un error inesperado: {error}')
     finally:
         if conn:
             cursor.close()
