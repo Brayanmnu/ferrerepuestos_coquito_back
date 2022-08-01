@@ -14,7 +14,7 @@ config.read(file)
 app = FastAPI()
 
 origins = [
-    "https://ferrerepuestoscoquitofront.herokuapp.com/",
+    "https://coquitofrontadmin.herokuapp.com/",
     "http://localhost",
     "http://localhost:3000",
 ]
