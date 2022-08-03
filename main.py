@@ -17,6 +17,7 @@ origins = [
     "https://coquitofrontadmin.herokuapp.com",
     "http://localhost",
     "http://localhost:3000",
+    "https://adminv2.ferrerepuestoscoquito.com"
 ]
 
 app.add_middleware(
