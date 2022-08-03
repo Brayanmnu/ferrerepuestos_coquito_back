@@ -241,6 +241,45 @@ def insert_producto(producto: Producto):
 
 
 
+
+@app.get("/update-url-qr")
+def update_url_qr():
+    dict_json = []
+    try:
+        conn = utils.conexion_postgres(host,port,db,usr,pwd)
+        query = "SELECT id_producto FROM producto "
+        cursor = conn.cursor()
+        cursor.execute(query)
+        print('Query ejecutado')
+        client_mongo = MongoClient(config['mongodb']['uri'] )
+        db_mongo = client_mongo[config['mongodb']['database']]
+        collection_qr = db_mongo[config['mongodb']['collection_qr']]
+        if cursor.rowcount > 0:
+            records = cursor.fetchall()
+            for row in records:
+                url_qr = config['hosting']['url_hosting'] 
+                url_qr = str(url_qr)+ row[0]
+                img = qrcode.make(url_qr)
+                img.save("qr_auxiliar.jpg")
+                with open("qr_auxiliar.jpg", "rb") as img_file:
+                    b64_string = base64.b64encode(img_file.read())
+                remove("qr_auxiliar.jpg")
+                mydict = { "id": row[0], "b64_string": str(b64_string) }
+                qr_result = collection_qr.insert_one(mydict)
+                print('insertado en mongodb')
+        client_mongo.close()
+    except Exception as error:
+        dict_json = {"status": "error"}
+        print(f'Ocurrió un error inesperado: {error}')
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+            print('conexion terminada')
+    return dict_json
+
+
+
 @app.put("/products/{item_id}")
 def update_producto(item_id: str, producto: Producto):
     try:
