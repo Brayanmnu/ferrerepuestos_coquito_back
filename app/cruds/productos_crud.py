@@ -33,7 +33,7 @@ async def get_all_products():
     dict_json = []
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
-        query = "select row_to_json(row) from (SELECT id_producto, t.descripcion as categoria, nombre, p.descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, concat(stock,' ',um.descripcion) as stock FROM producto p inner join tipo_productos t on p.id_tipo_producto = t.id inner join unidad_medida um on p.id_unidad_medida = um.id) row"
+        query = "select row_to_json(row) from (SELECT id_producto, t.descripcion as categoria, nombre, p.descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, um.descripcion as uni_medida FROM producto p inner join tipo_productos t on p.id_tipo_producto = t.id inner join unidad_medida um on p.id_unidad_medida = um.id) row"
         cursor = conn.cursor()
         cursor.execute(query)
         print('Query ejecutado')
