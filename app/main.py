@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.cruds import productos_crud , tipo_producto_crud ,  unidad_medida_crud
-from app.modules import products_qr
+from app.modules import products_qr, login
 
 app = FastAPI()
 
@@ -15,6 +15,7 @@ app.include_router(unidad_medida_crud.router)
 
 #MODULES
 app.include_router(products_qr.router)
+app.include_router(login.router)
 
 
 '''
