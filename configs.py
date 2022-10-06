@@ -5,11 +5,11 @@ config = ConfigParser()
 config.read(file)
 
 def get_values_database_postgress():
-    host = config['database']['host_heroku']
-    port = config['database']['port_heroku']
-    db = config['database']['db_heroku']
-    usr = config['database']['usr_heroku']
-    pwd = config['database']['pwd_heroku']
+    host = config['database']['host_pdn']
+    port = config['database']['port_pdn']
+    db = config['database']['db_pdn']
+    usr = config['database']['usr_pdn']
+    pwd = config['database']['pwd_pdn']
     return host, port, db, usr, pwd
 
 
