@@ -65,7 +65,7 @@ async def get_all_products_v2(nroPag: str, productType:str, idSubProductType:str
 
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         sub_query_nombre = "concat(s.descripcion ,(case when m.descripcion!='' then CONCAT(' DE ', m.descripcion) END) ,(case when me.descripcion!='' then CONCAT(' A ', me.descripcion) END) ,' ', p.descripcion) as nombre "
-        sub_query_columns = f"select p.id_producto, p.stock, um.descripcion as uni_medida, {sub_query_nombre} , precio_venta_menor, precio_venta_mayor,precio_compra "
+        sub_query_columns = f"select count(*) OVER() AS total_elements, p.id_producto, p.stock, um.descripcion as uni_medida, {sub_query_nombre} , precio_venta_menor, precio_venta_mayor,precio_compra "
         sub_query_tables = " from producto p left join sub_tipo_producto s on p.id_sub_tipo_producto =s.id left join medida m on p.de =m.id left join medida me on p.a= me.id inner join unidad_medida um on p.id_unidad_medida = um.id "
         query = f"select row_to_json(row) from ( {sub_query_columns} {sub_query_tables} where p.estado = 1 and p.id_tipo_producto = {productType} {filter} order by nombre limit 10 offset {nroPag}) row"
         cursor = conn.cursor()
