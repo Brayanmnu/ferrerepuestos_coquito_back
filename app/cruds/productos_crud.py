@@ -90,7 +90,7 @@ async def get_by_id_products(item_id: str):
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         cursor = conn.cursor()
-        select_query = "select row_to_json(row) from (SELECT id_tipo_producto, nombre, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida  FROM producto where id_producto = %s) row"
+        select_query = "select row_to_json(row) from (SELECT id_sub_tipo_producto, de as id_de, a as id_a, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida  FROM producto where id_producto = %s) row"
         cursor.execute(select_query,(item_id,))
         print('Query ejecutado')
         if cursor.rowcount > 0:
