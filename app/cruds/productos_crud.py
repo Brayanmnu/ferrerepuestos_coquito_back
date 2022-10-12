@@ -20,7 +20,12 @@ uri_qr, database_no_sql_qr, collection_db_qr = get_values_database_nosql_collect
 
 class Producto(BaseModel):
     id_tipo_producto: int
-    nombre: str
+    id_sub_tipo: str
+    desc_sub_tipo: str
+    id_de: str
+    desc_de: str
+    id_a: str
+    desc_a: str
     descripcion: str
     precio_compra: float
     precio_venta_menor: float
@@ -112,8 +117,41 @@ async def insert_producto(producto: Producto):
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         cursor = conn.cursor()
-        select_query = "insert into producto (id_tipo_producto, nombre, descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida,fecha_registro, fecha_actualizacion) values (%s,%s, %s, %s, %s, %s, %s, %s,current_timestamp, current_timestamp) RETURNING id_producto"
-        cursor.execute(select_query,(producto.id_tipo_producto,producto.nombre,producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto. precio_venta_mayor, producto.stock, producto.id_unidad_medida))
+        
+        if producto.desc_sub_tipo:
+            insert_query = "insert into sub_tipo_producto (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_sub_tipo, producto.id_tipo_producto))
+            conn.commit()
+            print('sub_tipo_producto insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_sub_tipo_product = dict_json[0]
+        else:
+            id_sub_tipo_product = producto.id_sub_tipo
+
+        if producto.desc_de:
+            insert_query = "insert into medida (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_de, producto.id_tipo_producto))
+            conn.commit()
+            print('medida DE insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_de = dict_json[0]
+        else:
+            id_de = producto.id_de
+        if producto.desc_a:
+            insert_query = "insert into medida (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_a, producto.id_tipo_producto))
+            conn.commit()
+            print('medida A insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_a = dict_json[0]
+        else:
+            id_a = producto.id_a
+
+        select_query = "insert into producto (id_tipo_producto, id_sub_tipo_producto, de ,a , descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida,fecha_registro, fecha_actualizacion) values (%s,%s, %s, %s, %s, %s, %s,%s,%s, %s,current_timestamp, current_timestamp) RETURNING id_producto"
+        cursor.execute(select_query,(producto.id_tipo_producto,id_sub_tipo_product, id_de,id_a, producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto.precio_venta_mayor, producto.stock, producto.id_unidad_medida))
         conn.commit()
         print('Query ejecutado')
         if cursor.rowcount > 0:
@@ -151,8 +189,42 @@ async def update_producto(item_id: str, producto: Producto):
     try:
         conn = utils.conexion_postgres(host,port,db,usr,pwd)
         cursor = conn.cursor()
-        select_query = "update producto set id_tipo_producto = (%s) , nombre = (%s), descripcion = (%s), precio_compra = (%s), precio_venta_menor = (%s), precio_venta_mayor = (%s), stock = (%s), id_unidad_medida = (%s), fecha_actualizacion = (current_timestamp) where id_producto = (%s)"
-        cursor.execute(select_query,(producto.id_tipo_producto,producto.nombre,producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto. precio_venta_mayor, producto.stock, producto.id_unidad_medida, item_id))
+        
+        if producto.desc_sub_tipo:
+            insert_query = "insert into sub_tipo_producto (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_sub_tipo, producto.id_tipo_producto))
+            conn.commit()
+            print('sub_tipo_producto insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_sub_tipo_product = dict_json[0]
+        else:
+            id_sub_tipo_product = producto.id_sub_tipo
+
+        if producto.desc_de:
+            insert_query = "insert into medida (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_de, producto.id_tipo_producto))
+            conn.commit()
+            print('medida DE insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_de = dict_json[0]
+        else:
+            id_de = producto.id_de
+
+        if producto.desc_a:
+            insert_query = "insert into medida (descripcion , id_tipo_producto) values (%s,%s) RETURNING id"
+            cursor.execute(insert_query,(producto.desc_a, producto.id_tipo_producto))
+            conn.commit()
+            print('medida A insertado')
+            if cursor.rowcount > 0:
+                dict_json = cursor.fetchone()
+                id_a = dict_json[0]
+        else:
+            id_a = producto.id_a
+        
+        select_query = "update producto set id_sub_tipo_producto = (%s), de = (%s), a = (%s) , descripcion = (%s), precio_compra = (%s), precio_venta_menor = (%s), precio_venta_mayor = (%s), stock = (%s), id_unidad_medida = (%s), fecha_actualizacion = (current_timestamp) where id_producto = (%s)"
+        cursor.execute(select_query,(id_sub_tipo_product, id_de, id_a, producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto.precio_venta_mayor, producto.stock, producto.id_unidad_medida, item_id))
         conn.commit()
         print('Query ejecutado')
         dict_json = {"status":"actualizado"}
