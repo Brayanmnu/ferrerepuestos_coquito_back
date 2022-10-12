@@ -112,6 +112,29 @@ async def get_by_id_products(item_id: str):
     return dict_json
 
 
+@router.get("/detail/{item_id}")
+async def get_by_id_product_detail(item_id: str):
+    try:
+        conn = utils.conexion_postgres(host,port,db,usr,pwd)
+        cursor = conn.cursor()
+        sub_query_nombre = "concat(s.descripcion ,(case when m.descripcion!='' then CONCAT(' DE ', m.descripcion) END) ,(case when me.descripcion!='' then CONCAT(' A ', me.descripcion) END) ,' ', p.descripcion) as nombre "
+        sub_query_tables = " from producto p left join sub_tipo_producto s on p.id_sub_tipo_producto =s.id left join medida m on p.de =m.id left join medida me on p.a= me.id inner join unidad_medida um on p.id_unidad_medida = um.id "
+        select_query = f"select row_to_json(row) from (SELECT {sub_query_nombre} , precio_compra, precio_venta_menor, precio_venta_mayor, stock, um.descripcion as uni_medida  {sub_query_tables} where p.id_producto = %s) row"
+        cursor.execute(select_query,(item_id,))
+        print('Query ejecutado')
+        if cursor.rowcount > 0:
+            dict_json = cursor.fetchone()
+            dict_json = dict_json[0]
+    except Exception as error:
+        dict_json = []
+        print('Ocurrió un error inesperado')
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+            print('conexion terminada')
+    return dict_json
+
 @router.post("/")
 async def insert_producto(producto: Producto):
     try:
