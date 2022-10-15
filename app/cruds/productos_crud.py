@@ -173,6 +173,12 @@ async def insert_producto(producto: Producto):
         else:
             id_a = producto.id_a
 
+        if not id_de:
+            id_de = None
+
+        if not id_a:
+            id_a = None
+
         select_query = "insert into producto (id_tipo_producto, id_sub_tipo_producto, de ,a , descripcion, precio_compra, precio_venta_menor, precio_venta_mayor, stock, id_unidad_medida,fecha_registro, fecha_actualizacion) values (%s,%s, %s, %s, %s, %s, %s,%s,%s, %s,current_timestamp, current_timestamp) RETURNING id_producto"
         cursor.execute(select_query,(producto.id_tipo_producto,id_sub_tipo_product, id_de,id_a, producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto.precio_venta_mayor, producto.stock, producto.id_unidad_medida))
         conn.commit()
