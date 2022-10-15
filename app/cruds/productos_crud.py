@@ -246,6 +246,7 @@ async def update_producto(item_id: str, producto: Producto):
         else:
             id_a = producto.id_a
         
+        print(f'body_update: {producto}')
         select_query = "update producto set id_sub_tipo_producto = (%s), de = (%s), a = (%s) , descripcion = (%s), precio_compra = (%s), precio_venta_menor = (%s), precio_venta_mayor = (%s), stock = (%s), id_unidad_medida = (%s), fecha_actualizacion = (current_timestamp) where id_producto = (%s)"
         cursor.execute(select_query,(id_sub_tipo_product, id_de, id_a, producto.descripcion, producto.precio_compra, producto.precio_venta_menor, producto.precio_venta_mayor, producto.stock, producto.id_unidad_medida, item_id))
         conn.commit()
